@@ -21,20 +21,31 @@ class Analytics {
       window.dataLayer.push(args);
     }
     gtag('js', new Date());
-    gtag('config', GA_TRACKING_ID);
+    gtag('config', GA_TRACKING_ID, {
+      page_path: window.location.pathname,
+      send_page_view: true
+    });
 
     this.isInitialized = true;
   }
 
-  trackEvent({ category, action, label }: AnalyticsEvent) {
+  trackPageView(path: string) {
     if (!this.isInitialized) return;
-
-    window.gtag?.('event', action, {
-      event_category: category,
-      event_label: label
+    window.gtag?.('config', GA_TRACKING_ID, {
+      page_path: path
     });
   }
 
+  trackEvent({ category, action, label, value }: AnalyticsEvent) {
+    if (!this.isInitialized) return;
+    window.gtag?.('event', action, {
+      event_category: category,
+      event_label: label,
+      value
+    });
+  }
+
+  // Specific event tracking methods
   trackCalculation(inputs: Record<string, any>) {
     this.trackEvent({
       category: 'Calculator',
@@ -48,6 +59,37 @@ class Analytics {
       category: 'Calculator',
       action: 'change_market_type',
       label: marketType
+    });
+  }
+
+  trackSaveCalculation() {
+    this.trackEvent({
+      category: 'Calculator',
+      action: 'save_calculation'
+    });
+  }
+
+  trackExportCalculation(format: string) {
+    this.trackEvent({
+      category: 'Calculator',
+      action: 'export_calculation',
+      label: format
+    });
+  }
+
+  trackShareCalculation(platform: string) {
+    this.trackEvent({
+      category: 'Share',
+      action: 'share_calculation',
+      label: platform
+    });
+  }
+
+  trackError(error: Error, componentStack?: string) {
+    this.trackEvent({
+      category: 'Error',
+      action: 'error_boundary',
+      label: `${error.message}\n${componentStack || ''}`
     });
   }
 }

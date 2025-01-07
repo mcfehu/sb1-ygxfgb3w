@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { analytics } from './services/analytics';
 import Head from './components/layout/Head';
 import Hero from './components/layout/Hero';
 import NewsTicker from './components/news/NewsTicker';
@@ -16,6 +17,22 @@ import TermsOfUse from './components/pages/TermsOfUse';
 import Disclaimer from './components/pages/Disclaimer';
 
 function App() {
+  useEffect(() => {
+    // Initialize analytics
+    analytics.init();
+    
+    // Track initial page view
+    analytics.trackPageView(window.location.pathname);
+
+    // Track page views on route changes
+    const handleRouteChange = () => {
+      analytics.trackPageView(window.location.pathname);
+    };
+
+    window.addEventListener('popstate', handleRouteChange);
+    return () => window.removeEventListener('popstate', handleRouteChange);
+  }, []);
+
   const path = window.location.pathname;
 
   if (path === '/privacy') {

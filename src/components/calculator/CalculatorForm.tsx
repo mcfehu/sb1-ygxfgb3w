@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { MarketType, Currency, ForexPair, LotSize } from '../../types';
 import { calculatePositionSize } from '../../utils/calculations/positionSize';
-import MarketTypeSelector from './MarketTypeSelector';
+import { analytics } from '../../services/analytics';
+import MarketTypeSelector from '../MarketTypeSelector';
 import CurrencySelector from './CurrencySelector';
 import RiskInputs from './RiskInputs';
 import NumberInput from '../NumberInput';
@@ -56,6 +57,12 @@ export default function CalculatorForm() {
 
     const calculationResult = calculatePositionSize(calculationInput);
     setResult(calculationResult);
+    analytics.trackCalculation(calculationInput);
+  };
+
+  const handleMarketTypeChange = (type: MarketType) => {
+    setFormState(prev => ({ ...prev, marketType: type }));
+    analytics.trackMarketTypeChange(type);
   };
 
   return (
@@ -63,7 +70,7 @@ export default function CalculatorForm() {
       <div className="flex justify-between items-center">
         <MarketTypeSelector
           marketType={formState.marketType}
-          onMarketTypeChange={(type) => setFormState(prev => ({ ...prev, marketType: type }))}
+          onMarketTypeChange={handleMarketTypeChange}
         />
         <button
           type="button"

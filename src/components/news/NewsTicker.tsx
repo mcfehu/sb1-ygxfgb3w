@@ -13,7 +13,6 @@ function formatTimeAgo(pubDate: string): string {
   return `${Math.floor(diffInMinutes / 1440)}d ago`;
 }
 
-// Loading placeholder
 const TickerSkeleton = () => (
   <div className="bg-blue-900 text-white py-3">
     <div className="max-w-7xl mx-auto px-4">
@@ -25,13 +24,20 @@ const TickerSkeleton = () => (
 export default function NewsTicker() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const updateNewsTicker = useCallback(async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const headlines = await fetchNews();
-      setNews(headlines);
+      
+      // Only update if we have new headlines
+      if (headlines.length > 0) {
+        setNews(headlines);
+      }
     } catch (error) {
+      setError('Failed to fetch news');
       console.error('Error updating news ticker:', error);
     } finally {
       setIsLoading(false);
@@ -39,10 +45,24 @@ export default function NewsTicker() {
   }, []);
 
   useEffect(() => {
+    // Initial fetch
     updateNewsTicker();
-    const interval = setInterval(updateNewsTicker, 5 * 60 * 1000);
+
+    // Update every 2 minutes
+    const interval = setInterval(updateNewsTicker, 2 * 60 * 1000);
+    
     return () => clearInterval(interval);
   }, [updateNewsTicker]);
+
+  if (error) {
+    return (
+      <div className="bg-blue-900 text-white py-3">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <span className="text-blue-200">{error}</span>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return <TickerSkeleton />;

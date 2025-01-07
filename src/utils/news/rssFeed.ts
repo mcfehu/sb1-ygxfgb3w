@@ -16,30 +16,37 @@ const FEEDS = [
   {
     url: 'https://www.investing.com/rss/news_commodities.rss',
     source: 'Investing.com'
+  },
+  {
+    url: 'https://www.fxstreet.com/rss',
+    source: 'FXStreet'
   }
 ];
 
-// Fallback static news data
-const STATIC_NEWS: NewsItem[] = [
-  {
-    title: "USD/JPY hits new highs as Bank of Japan maintains ultra-loose policy",
-    link: "https://www.forexlive.com/",
-    pubDate: new Date().toISOString(),
-    source: "ForexLive"
-  },
-  {
-    title: "Gold steadies near $2,000 as traders await Fed decision",
-    link: "https://www.investing.com/",
-    pubDate: new Date().toISOString(),
-    source: "Investing.com"
-  },
-  {
-    title: "EUR/USD consolidates ahead of ECB meeting",
-    link: "https://www.forexlive.com/",
-    pubDate: new Date().toISOString(),
-    source: "ForexLive"
-  }
-];
+// Generate dynamic fallback news with current timestamp
+const generateFallbackNews = (): NewsItem[] => {
+  const now = new Date();
+  return [
+    {
+      title: "Markets await key economic data releases",
+      link: "https://www.forexlive.com/",
+      pubDate: new Date(now.getTime() - 5 * 60000).toISOString(), // 5 minutes ago
+      source: "ForexLive"
+    },
+    {
+      title: "Central banks signal policy shift amid economic uncertainty",
+      link: "https://www.investing.com/",
+      pubDate: new Date(now.getTime() - 10 * 60000).toISOString(), // 10 minutes ago
+      source: "Investing.com"
+    },
+    {
+      title: "Global markets respond to geopolitical developments",
+      link: "https://www.fxstreet.com/",
+      pubDate: new Date(now.getTime() - 15 * 60000).toISOString(), // 15 minutes ago
+      source: "FXStreet"
+    }
+  ];
+};
 
 function filterDuplicates(headlines: NewsItem[]): NewsItem[] {
   const seen = new Set<string>();
@@ -58,7 +65,13 @@ export async function fetchNews(): Promise<NewsItem[]> {
 
     await Promise.all(FEEDS.map(async ({ url, source }) => {
       try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          headers: {
+            'Accept': 'application/rss+xml, application/xml, text/xml; q=0.1',
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
         if (!response.ok) throw new Error(`Feed ${source} unavailable`);
         
         const feed = await parser.parseString(await response.text());
@@ -77,15 +90,15 @@ export async function fetchNews(): Promise<NewsItem[]> {
 
     // If we got any news items, filter duplicates and sort by date
     if (allNews.length > 0) {
-      return filterDuplicates(allNews).sort((a, b) => 
-        new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime()
-      );
+      return filterDuplicates(allNews)
+        .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
+        .slice(0, 10); // Limit to 10 most recent items
     }
 
-    // Fallback to static news if all feeds fail
-    return STATIC_NEWS;
+    // Fallback to dynamic news if all feeds fail
+    return generateFallbackNews();
   } catch (error) {
-    console.warn('Using static news fallback:', error);
-    return STATIC_NEWS;
+    console.warn('Using fallback news:', error);
+    return generateFallbackNews();
   }
 }

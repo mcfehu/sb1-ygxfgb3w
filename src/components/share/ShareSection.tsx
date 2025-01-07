@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { Share2 } from 'lucide-react';
-import ShareButton from './ShareButton';
+
+// Lazy load ShareButton component
+const ShareButton = lazy(() => import('./ShareButton'));
+
+// Loading placeholder for buttons
+const ButtonSkeleton = () => (
+  <div className="h-10 w-32 bg-gray-200 rounded-lg animate-pulse" />
+);
 
 export default function ShareSection() {
   const [showCopyMessage, setShowCopyMessage] = useState(false);
@@ -43,10 +50,12 @@ export default function ShareSection() {
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
-            <ShareButton platform="twitter" onClick={() => handleShare('twitter')} />
-            <ShareButton platform="facebook" onClick={() => handleShare('facebook')} />
-            <ShareButton platform="linkedin" onClick={() => handleShare('linkedin')} />
-            <ShareButton platform="copy" onClick={handleCopy} />
+            <Suspense fallback={<ButtonSkeleton />}>
+              <ShareButton platform="twitter" onClick={() => handleShare('twitter')} />
+              <ShareButton platform="facebook" onClick={() => handleShare('facebook')} />
+              <ShareButton platform="linkedin" onClick={() => handleShare('linkedin')} />
+              <ShareButton platform="copy" onClick={handleCopy} />
+            </Suspense>
           </div>
 
           {showCopyMessage && (

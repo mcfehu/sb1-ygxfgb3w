@@ -11,6 +11,7 @@ import NumberOfLotsInput from './NumberOfLotsInput';
 import FuturesContractSelector from './futures/FuturesContractSelector';
 import TickValueInput from './futures/TickValueInput';
 import CalculatorResult from './CalculatorResult';
+import CalculationHistory from './CalculationHistory';
 import { submitButtonStyles } from '../ui/ButtonStyles';
 import { RotateCcw } from 'lucide-react';
 
@@ -153,7 +154,12 @@ export default function CalculatorForm() {
         Calculate Position Size
       </button>
 
-      {result && <CalculatorResult result={result} />}
+      {result && (
+        <>
+          <CalculatorResult result={result} />
+          <CalculationHistory />
+        </>
+      )}
     </form>
   );
 }

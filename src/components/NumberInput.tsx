@@ -11,6 +11,8 @@ interface NumberInputProps {
   required?: boolean;
   disabled?: boolean;
   tooltip?: string;
+  inputMode?: 'numeric' | 'decimal';
+  pattern?: string;
 }
 
 export default function NumberInput({
@@ -23,6 +25,8 @@ export default function NumberInput({
   required = false,
   disabled = false,
   tooltip,
+  inputMode = 'numeric',
+  pattern
 }: NumberInputProps) {
   return (
     <FormControl label={label} tooltip={tooltip}>
@@ -36,6 +40,8 @@ export default function NumberInput({
         required={required}
         disabled={disabled}
         className={baseInputStyles}
+        inputMode={inputMode}
+        pattern={pattern}
       />
     </FormControl>
   );

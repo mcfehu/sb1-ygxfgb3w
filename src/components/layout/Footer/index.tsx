@@ -1,13 +1,12 @@
 import React from 'react';
-import { Calculator, HelpCircle, MessageSquare } from 'lucide-react';
+import { Calculator, HelpCircle } from 'lucide-react';
 import FooterSection from './FooterSection';
 import QuickLink from './QuickLink';
 import CopyrightBar from './CopyrightBar';
 
 const quickLinks = [
   { href: '#calculator', label: 'Calculator', icon: Calculator },
-  { href: '#faq', label: 'FAQs', icon: HelpCircle },
-  { href: '#contact', label: 'Contact Us', icon: MessageSquare }
+  { href: '#faq', label: 'FAQs', icon: HelpCircle }
 ];
 
 const legalLinks = [

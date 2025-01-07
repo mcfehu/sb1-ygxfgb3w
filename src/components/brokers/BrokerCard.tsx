@@ -6,7 +6,6 @@ interface BrokerCardProps {
   description: string;
   features: string[];
   link: string;
-  linkText: string;
   logoUrl: string;
 }
 
@@ -15,7 +14,6 @@ export default function BrokerCard({
   description,
   features,
   link,
-  linkText,
   logoUrl
 }: BrokerCardProps) {
   return (
@@ -56,7 +54,7 @@ export default function BrokerCard({
             group-hover:bg-blue-600 group-hover:text-white
           "
         >
-          {linkText}
+          Open Live Account
           <ExternalLink className="w-4 h-4" />
         </a>
       </div>

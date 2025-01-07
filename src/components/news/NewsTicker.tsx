@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { ExternalLink, Clock } from 'lucide-react';
 import { NewsItem, fetchNews } from '../../utils/news/rssFeed';
 
@@ -16,22 +16,34 @@ function formatTimeAgo(pubDate: string): string {
 export default function NewsTicker() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const updateInterval = useRef<number>();
+  const isFirstRender = useRef(true);
 
   const updateNewsTicker = useCallback(async () => {
     try {
       const headlines = await fetchNews();
       setNews(headlines);
     } catch (error) {
-      console.warn('Error updating news ticker:', error);
+      console.error('Error updating news ticker:', error);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    updateNewsTicker();
-    const interval = setInterval(updateNewsTicker, 5 * 60 * 1000);
-    return () => clearInterval(interval);
+    if (isFirstRender.current) {
+      updateNewsTicker();
+      isFirstRender.current = false;
+    }
+
+    // Update every 30 seconds
+    updateInterval.current = window.setInterval(updateNewsTicker, 30 * 1000);
+    
+    return () => {
+      if (updateInterval.current) {
+        clearInterval(updateInterval.current);
+      }
+    };
   }, [updateNewsTicker]);
 
   if (isLoading) {
@@ -62,12 +74,10 @@ export default function NewsTicker() {
                   </span>
                 )}
                 <span>{item.title}</span>
-                {item.pubDate && (
-                  <span className="inline-flex items-center text-blue-300 text-sm">
-                    <Clock className="w-3 h-3 mr-1" />
-                    {formatTimeAgo(item.pubDate)}
-                  </span>
-                )}
+                <span className="inline-flex items-center text-blue-300 text-sm">
+                  <Clock className="w-3 h-3 mr-1" />
+                  {formatTimeAgo(item.pubDate)}
+                </span>
                 <ExternalLink className="w-3 h-3 flex-shrink-0" />
               </a>
               <span className="px-3 text-blue-400">•</span>
